@@ -1953,6 +1953,24 @@
                                         <span class="streak-mini-label">днів</span>
                                     </div>
                                 </div>
+
+                                <!-- Vitamin D3+K2 Thorne -->
+                                <div class="supplement-item-card" id="card-d3k2">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="check-d3k2" class="supplement-checkbox">
+                                        <span class="checkmark">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                    </label>
+                                    <div class="supplement-info">
+                                        <span class="supplement-name">Вітамін D3+K2 Thorne</span>
+                                        <span class="supplement-details">З їжею (імунітет, транспорт кальцію в кістки, регенерація)</span>
+                                    </div>
+                                    <div class="streak-mini-counter">
+                                        <span class="streak-mini-num" id="streak-d3k2">0</span>
+                                        <span class="streak-mini-label">днів</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -2502,12 +2520,14 @@
                 streakMagnesium: 0,
                 streakOmega: 0,
                 streakCopper: 0,
+                streakD3K2: 0,
                 lastCheckedDate: '', // to handle daily reset
                 checkedVitC: false,
                 checkedZinc: false,
                 checkedMagnesium: false,
                 checkedOmega: false,
                 checkedCopper: false,
+                checkedD3K2: false,
                 milestones: [
                     { id: 'first_walk', name: 'Перша прогулянка (>20 хв)', unlocked: false, date: '', note: '' },
                     { id: 'first_cardio', name: 'Перша кардіо-активація (вело/орбітрек)', unlocked: false, date: '', note: '' },
@@ -2551,10 +2571,20 @@
             appState.streakCopper = 0;
             appState.checkedCopper = false;
             
+            appState.streakD3K2 = 6;
+            appState.checkedD3K2 = true;
+            
             appState.compFreeStreak = 11; // 11 days without complications
             
             localStorage.setItem('maraphone_recovery_state', JSON.stringify(appState));
             localStorage.setItem('maraphone_forced_day11_init_v3', 'true');
+        }
+
+        // Automatic migration for Vitamin D3+K2 Thorne if not yet present in existing state
+        if (appState.streakD3K2 === undefined || appState.streakD3K2 === 0) {
+            appState.streakD3K2 = 6;
+            appState.checkedD3K2 = true;
+            localStorage.setItem('maraphone_recovery_state', JSON.stringify(appState));
         }
 
         function saveStateToStorage() {
@@ -2571,6 +2601,7 @@
                 appState.checkedMagnesium = false;
                 appState.checkedOmega = false;
                 appState.checkedCopper = false;
+                appState.checkedD3K2 = false;
                 
                 appState.lastCheckedDate = todayStr;
                 saveStateToStorage();
@@ -2689,6 +2720,7 @@
             document.getElementById('check-magnesium').checked = appState.checkedMagnesium;
             document.getElementById('check-omega').checked = appState.checkedOmega;
             document.getElementById('check-copper').checked = appState.checkedCopper;
+            document.getElementById('check-d3k2').checked = appState.checkedD3K2;
             
             // Set styles based on check
             updateSupplementCardStyle('vitc', appState.checkedVitC);
@@ -2696,12 +2728,14 @@
             updateSupplementCardStyle('magnesium', appState.checkedMagnesium);
             updateSupplementCardStyle('omega', appState.checkedOmega);
             updateSupplementCardStyle('copper', appState.checkedCopper);
+            updateSupplementCardStyle('d3k2', appState.checkedD3K2);
 
             document.getElementById('streak-vitc').textContent = appState.streakVitC;
             document.getElementById('streak-zinc').textContent = appState.streakZinc;
             document.getElementById('streak-magnesium').textContent = appState.streakMagnesium;
             document.getElementById('streak-omega').textContent = appState.streakOmega;
             document.getElementById('streak-copper').textContent = appState.streakCopper;
+            document.getElementById('streak-d3k2').textContent = appState.streakD3K2;
 
             // 7. COMPLICATION STREAK DISPLAY
             document.getElementById('compFreeStreak').textContent = appState.compFreeStreak;
@@ -2914,6 +2948,7 @@
         setupSupplementCheckbox('check-magnesium', 'checkedMagnesium', 'streakMagnesium');
         setupSupplementCheckbox('check-omega', 'checkedOmega', 'streakOmega');
         setupSupplementCheckbox('check-copper', 'checkedCopper', 'streakCopper');
+        setupSupplementCheckbox('check-d3k2', 'checkedD3K2', 'streakD3K2');
 
         // Complication free streak control
         // Since it increments automatically on a new day, let's let the user increments or resets
