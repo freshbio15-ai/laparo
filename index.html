@@ -2616,7 +2616,9 @@
                 phaseBadge.style.background = 'rgba(0, 229, 192, 0.15)';
             }
 
-            const recPercent = Math.min(100, Math.round((currentDay / 365) * 100));
+            // Use the same medically accurate, non-linear collagen integration percentage as the chart
+            const currentWeekForPercent = Math.min(52, Math.max(1, Math.ceil(currentDay / 7)));
+            const recPercent = Math.round(getCollagenPercent(currentWeekForPercent));
             document.getElementById('recoveryPercentText').textContent = `${recPercent}%`;
             document.getElementById('recoveryBarFill').style.width = `${recPercent}%`;
 
