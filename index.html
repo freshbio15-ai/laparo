@@ -1,0 +1,3105 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAPP Athlete Recovery Tracker | Optomesh Protocol</title>
+    <!-- Google Fonts: Orbitron (Athletic/Sci-Fi) & Inter (Clean Text) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-darker: #060609;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(17, 17, 24, 0.75);
+            --bg-card-hover: rgba(22, 22, 32, 0.85);
+            --accent: #00e5c0;
+            --accent-glow: rgba(0, 229, 192, 0.35);
+            --warning: #f5a623;
+            --warning-glow: rgba(245, 166, 35, 0.25);
+            --danger: #ff4d6d;
+            --danger-glow: rgba(255, 77, 109, 0.25);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-dark: #0f172a;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(0, 229, 192, 0.3);
+            --steel-shine: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-darker);
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-darker);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        body {
+            background-color: var(--bg-darker);
+            background-image: 
+                linear-gradient(rgba(0, 229, 192, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 192, 0.015) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-position: center;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+        }
+
+        /* Utilities */
+        .glow-text-teal {
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        .glow-text-amber {
+            text-shadow: 0 0 10px var(--warning-glow);
+        }
+        .glow-text-red {
+            text-shadow: 0 0 10px var(--danger-glow);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* App Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-subtitle {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Premium Buttons */
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background: rgba(0, 229, 192, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 229, 192, 0.2);
+        }
+
+        /* Simulation Panel */
+        .sim-panel {
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px dashed var(--accent);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: none;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 229, 192, 0.1);
+            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sim-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+
+        .sim-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .sim-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sim-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .sim-slider {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        .sim-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent);
+            transition: transform 0.1s ease;
+        }
+
+        .sim-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .sim-slider-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .sim-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sim-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sim-btn:hover, .sim-btn.active {
+            background: var(--accent);
+            color: var(--text-dark);
+            border-color: var(--accent);
+            font-weight: 700;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Glassmorphism Card Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 8fr 4fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-active);
+        }
+
+        .card-header-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title svg {
+            color: var(--accent);
+        }
+
+        /* HERO DASHBOARD CARD */
+        .hero-card {
+            grid-column: span 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: linear-gradient(150deg, rgba(17, 17, 24, 0.9) 0%, rgba(10, 10, 15, 0.95) 100%);
+            border-left: 4px solid var(--accent);
+        }
+
+        .hero-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: center;
+        }
+
+        @media (max-width: 640px) {
+            .hero-layout {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+            }
+        }
+
+        /* Progress Circle */
+        .progress-ring-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            stroke-linecap: round;
+        }
+
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .progress-ring-day-label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .progress-ring-day-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+            margin: 4px 0;
+            text-shadow: 0 0 10px rgba(0, 229, 192, 0.5);
+        }
+
+        .progress-ring-total {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Hero Info */
+        .hero-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .phase-badge-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-active {
+            background: rgba(0, 229, 192, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 10px rgba(0, 229, 192, 0.1);
+        }
+
+        .badge-info {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .recovery-percent-wrapper {
+            margin-top: 8px;
+        }
+
+        .recovery-percent-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .recovery-bar-bg {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .recovery-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #008080 0%, var(--accent) 100%);
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.6s cubic-bezier(0.1, 0.8, 0.2, 1);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .surgical-info-badge {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .surgical-info-item span {
+            display: block;
+        }
+        .surgical-info-item span:first-child {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        .surgical-info-item span:last-child {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* DYNAMIC BODY STATUS CARD */
+        .status-card {
+            background: linear-gradient(135deg, rgba(17, 17, 24, 0.8) 0%, rgba(20, 20, 30, 0.6) 100%);
+            border-left: 4px solid var(--warning);
+        }
+
+        .biology-stage-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            color: var(--warning);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .biology-description {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: var(--text-primary);
+        }
+
+        .biology-graphic-container {
+            margin-top: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .biology-mesh-icon {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 229, 192, 0.3);
+            background: repeating-linear-gradient(45deg, rgba(0, 229, 192, 0.05), rgba(0, 229, 192, 0.05) 5px, rgba(0, 229, 192, 0.15) 5px, rgba(0, 229, 192, 0.15) 10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(0, 229, 192, 0.1);
+        }
+
+        .biology-status-text {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .biology-status-highlight {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* DAILY ALLOWED ACTIVITIES */
+        .activities-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .activity-column {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .activity-column.allowed {
+            border-top: 3px solid var(--accent);
+        }
+
+        .activity-column.forbidden {
+            border-top: 3px solid var(--danger);
+        }
+
+        .activity-column-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .allowed .activity-column-title { color: var(--accent); }
+        .forbidden .activity-column-title { color: var(--danger); }
+
+        .activity-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .activity-item {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .activity-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .allowed .activity-icon { color: var(--accent); }
+        .forbidden .activity-icon { color: var(--danger); }
+
+        /* DAILY SUPPLEMENT TRACKER */
+        .supplement-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .supplement-section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .supplement-item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 16px;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .supplement-item-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .supplement-item-card.checked {
+            border-color: var(--border-active);
+            background: rgba(0, 229, 192, 0.03);
+        }
+
+        /* Futuristic Checkbox */
+        .checkbox-container {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 24px;
+            width: 24px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--text-secondary);
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkmark svg {
+            color: var(--text-dark);
+            width: 14px;
+            height: 14px;
+            transform: scale(0);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .checkbox-container:hover .checkmark {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(0, 229, 192, 0.2);
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .checkbox-container input:checked ~ .checkmark svg {
+            transform: scale(1);
+        }
+
+        .supplement-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .supplement-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .supplement-details {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .supplement-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .zinc-badge-take {
+            background: rgba(0, 229, 192, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(0, 229, 192, 0.2);
+        }
+
+        .zinc-badge-skip {
+            background: rgba(245, 166, 35, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 166, 35, 0.2);
+        }
+
+        .streak-mini-counter {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .streak-mini-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .streak-mini-label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* RECOVERY TIMELINE PHASES */
+        .timeline-container {
+            position: relative;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .timeline-step {
+            position: relative;
+            padding-left: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-node {
+            position: absolute;
+            left: -20px;
+            top: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-darker);
+            border: 2px solid var(--text-secondary);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-step.completed .timeline-node {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .timeline-step.active .timeline-node {
+            background: var(--warning);
+            border-color: var(--warning);
+            box-shadow: 0 0 10px var(--warning-glow);
+            animation: pulseWarning 1.5s infinite;
+        }
+
+        @keyframes pulseWarning {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(245, 166, 35, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 166, 35, 0); }
+        }
+
+        .timeline-step.locked {
+            opacity: 0.5;
+        }
+
+        .timeline-content-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-step.active .timeline-content-card {
+            background: rgba(245, 166, 35, 0.02);
+            border-color: rgba(245, 166, 35, 0.3);
+        }
+
+        .timeline-step.completed .timeline-content-card {
+            border-color: rgba(0, 229, 192, 0.15);
+        }
+
+        .timeline-step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .timeline-step-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .timeline-step.active .timeline-step-title {
+            color: var(--warning);
+        }
+
+        .timeline-step.completed .timeline-step-title {
+            color: var(--accent);
+        }
+
+        .timeline-step-duration {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .timeline-step.active .timeline-step-duration {
+            background: rgba(245, 166, 35, 0.15);
+            color: var(--warning);
+        }
+
+        .timeline-step.completed .timeline-step-duration {
+            background: rgba(0, 229, 192, 0.1);
+            color: var(--accent);
+        }
+
+        .timeline-step-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        /* MOTIVATION & PERSONAL RECORDS CARD */
+        .motivation-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .motivation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .streak-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .streak-big-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+            line-height: 1;
+        }
+
+        .streak-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .streak-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.35;
+        }
+
+        .streak-controls {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .streak-btn {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .streak-btn:hover {
+            background: rgba(255, 77, 109, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Personal Records */
+        .records-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .record-item-card {
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .record-item-card.unlocked {
+            border-color: var(--border-active);
+            background: rgba(0, 229, 192, 0.01);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .record-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .record-icon-status {
+            color: var(--text-secondary);
+        }
+
+        .record-item-card.unlocked .record-icon-status {
+            color: var(--accent);
+            filter: drop-shadow(0 0 5px var(--accent-glow));
+        }
+
+        .record-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .record-date-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .record-item-card.unlocked .record-date-badge {
+            background: rgba(0, 229, 192, 0.15);
+            color: var(--accent);
+        }
+
+        .record-details-panel {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.05);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .record-details-panel.active {
+            display: flex;
+        }
+
+        .record-input-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+
+        .record-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .record-input:focus {
+            border-color: var(--accent);
+        }
+
+        .record-textarea {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            min-height: 50px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .record-textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .record-save-btn {
+            background: var(--accent);
+            color: var(--text-dark);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .record-save-btn:hover {
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .record-note-display {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.01);
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 2px solid var(--accent);
+        }
+
+        /* OPTOMESH SPECIFICATION CARD */
+        .mesh-spec-card {
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.9) 0%, rgba(15, 23, 42, 0.4) 100%);
+            border-left: 4px solid var(--accent);
+        }
+
+        .mesh-spec-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        @media (max-width: 640px) {
+            .mesh-spec-grid {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+            }
+        }
+
+        .mesh-microscopic-grid {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 229, 192, 0.4);
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 229, 192, 0.15);
+        }
+
+        .mesh-microscopic-grid::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, transparent 40%, rgba(0, 229, 192, 0.1) 80%);
+            animation: radarScanner 2.5s infinite linear;
+        }
+
+        @keyframes radarScanner {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .mesh-pore {
+            background: rgba(0, 229, 192, 0.15);
+            border: 1px solid rgba(0, 229, 192, 0.3);
+            border-radius: 2px;
+            transition: all 0.5s ease;
+        }
+
+        .pore-ingrowth {
+            background: var(--accent);
+            box-shadow: 0 0 5px var(--accent);
+        }
+
+        .mesh-specs-text {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mesh-spec-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .mesh-spec-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .mesh-spec-bullets {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .mesh-spec-bullet {
+            font-size: 0.72rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Coach Quote Banner */
+        .coach-banner {
+            background: linear-gradient(90deg, rgba(0, 229, 192, 0.05) 0%, rgba(10, 10, 15, 0.2) 100%);
+            border: 1px solid rgba(0, 229, 192, 0.15);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .coach-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--steel-shine);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(0, 229, 192, 0.2);
+        }
+
+        .coach-message {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .coach-message-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .coach-message-text {
+            font-size: 0.85rem;
+            color: #fff;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        /* CSS Grid Layout Utilities */
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Complication Reset Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(6, 6, 9, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #111118;
+            border: 1px solid var(--danger);
+            border-radius: 16px;
+            max-width: 450px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(255, 77, 109, 0.15);
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            text-align: center;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--danger);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .modal-btn-confirm {
+            background: var(--danger);
+            border: none;
+            color: #fff;
+        }
+
+        .modal-btn-confirm:hover {
+            box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .modal-btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* WEEKLY RECOVERY CHART CARD */
+        .weekly-chart-card {
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.9) 0%, rgba(17, 17, 24, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .chart-title-main {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-subtitle-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .chart-svg-wrapper {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            overflow: visible;
+        }
+
+        .chart-timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chart-label-item {
+            text-align: center;
+            width: 78px;
+            line-height: 1.25;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .chart-label-item:hover, .chart-label-item.active {
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--accent-glow);
+        }
+
+        .chart-label-item:hover span {
+            color: #fff !important;
+        }
+
+        .chart-milestone-marker {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .chart-milestone-marker:hover {
+            r: 7;
+            stroke: #fff;
+            stroke-width: 2;
+        }
+
+        /* LEFT SIDE PROTECTION CARD */
+        .core-protection-card {
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.95) 0%, rgba(17, 17, 24, 0.7) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .core-warning-box {
+            background: rgba(245, 166, 35, 0.04);
+            border: 1px dashed rgba(245, 166, 35, 0.2);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            line-height: 1.45;
+            margin-bottom: 16px;
+        }
+
+        .core-warning-box span {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        .core-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .core-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .core-item.unlocked {
+            border-left: 3px solid var(--accent);
+            background: linear-gradient(90deg, rgba(0, 229, 192, 0.03) 0%, transparent 100%);
+        }
+
+        .core-item.locked {
+            opacity: 0.45;
+            border-left: 3px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .core-icon-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+        }
+
+        .core-item.unlocked .core-icon-wrap {
+            color: var(--accent);
+            border-color: rgba(0, 229, 192, 0.2);
+            background: rgba(0, 229, 192, 0.05);
+            box-shadow: 0 0 10px rgba(0, 229, 192, 0.15);
+        }
+
+        .core-info-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .core-name {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .core-item.locked .core-name {
+            color: var(--text-secondary);
+        }
+
+        .core-desc {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.3;
+        }
+
+        .core-status-badge {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 65px;
+        }
+
+        .status-unlocked {
+            background: rgba(0, 229, 192, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(0, 229, 192, 0.2);
+        }
+
+        .status-locked {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        /* UROLOGY REMINDER CARD */
+        .urology-card {
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.95) 0%, rgba(15, 23, 42, 0.3) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--warning);
+        }
+
+        .urology-card.completed {
+            border-left: 4px solid var(--accent);
+        }
+
+        .urology-countdown-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+
+        .urology-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .urology-days {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--warning);
+            text-shadow: 0 0 10px var(--warning-glow);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .urology-card.completed .urology-days {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .urology-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.76rem;
+            color: var(--text-primary);
+        }
+
+        .urology-vein-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+        }
+
+        .urology-vein-indicator.borderline {
+            background: rgba(245, 166, 35, 0.03);
+            border: 1px solid rgba(245, 166, 35, 0.12);
+        }
+
+        .urology-vein-text {
+            color: var(--text-secondary);
+        }
+
+        .urology-vein-val {
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .urology-vein-val.alert {
+            color: var(--danger);
+        }
+
+        .urology-vein-val.warning {
+            color: var(--warning);
+        }
+
+        .urology-note {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.35;
+            margin-top: 4px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo-container">
+                <div class="logo-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/><rect x="5" y="5" width="2" height="14" rx="1"/><rect x="17" y="5" width="2" height="14" rx="1"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                    TAPP ATHLETE
+                </div>
+                <div class="logo-subtitle">OPTOMESH RECOVERY PROTOCOL</div>
+            </div>
+            
+            <div class="header-controls">
+                <!-- Sound Toggle Button -->
+                <button class="btn-icon" id="soundToggle" title="Звук увімкнено/вимкнено">
+                    <svg id="soundIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                </button>
+                <!-- Dev Simulation Panel Toggle -->
+                <button class="btn-icon" id="devToggle" title="Панель симуляції днів">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- DAY SIMULATOR PANEL -->
+        <div class="sim-panel" id="simPanel">
+            <div class="sim-title">
+                <span>ПАНЕЛЬ КЕРУВАННЯ СИМУЛЯЦІЄЮ</span>
+                <span style="font-size: 0.7rem; color: var(--text-secondary);">Тестуйте стани відновлення без очікування</span>
+            </div>
+            <div class="sim-grid">
+                <div class="sim-slider-container">
+                    <input type="range" min="1" max="400" value="1" class="sim-slider" id="daySlider">
+                    <div class="sim-slider-val" id="daySliderVal">День 1</div>
+                </div>
+                <div class="sim-presets">
+                    <button class="sim-btn" data-day="1">Дн.1</button>
+                    <button class="sim-btn" data-day="5">Дн.5</button>
+                    <button class="sim-btn" data-day="10">Дн.10</button>
+                    <button class="sim-btn" data-day="18">Дн.18</button>
+                    <button class="sim-btn" data-day="35">Дн.35</button>
+                    <button class="sim-btn" data-day="95">Дн.95</button>
+                    <button class="sim-btn" data-day="200">Дн.200</button>
+                    <button class="sim-btn" data-day="365">Дн.365</button>
+                    <button class="sim-btn" id="realDateBtn">РЕАЛЬНИЙ ДЕНЬ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <div class="dashboard-grid">
+            
+            <!-- LEFT COLUMN (MAIN CARDS) -->
+            <div class="flex-col">
+                
+                <!-- HERO CARD -->
+                <div class="card hero-card">
+                    <div class="hero-layout">
+                        
+                        <!-- Circular progress ring -->
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" width="180" height="180">
+                                <circle class="progress-ring__background" stroke="rgba(255,255,255,0.03)" stroke-width="10" fill="transparent" r="76" cx="90" cy="90"/>
+                                <circle class="progress-ring__circle" id="progressCircle" stroke="var(--accent)" stroke-width="10" fill="transparent" r="76" cx="90" cy="90"/>
+                            </svg>
+                            <div class="progress-ring-text">
+                                <span class="progress-ring-day-label">День</span>
+                                <span class="progress-ring-day-num" id="heroDayNum">1</span>
+                                <span class="progress-ring-total">із 365</span>
+                            </div>
+                        </div>
+
+                        <!-- Info details -->
+                        <div class="hero-info">
+                            <div class="phase-badge-container">
+                                <span class="badge badge-active" id="phaseBadge">Фаза 1: Спокій</span>
+                                <span class="badge badge-info" id="surgeryDateBadge">Хірургія: 09.05.2026</span>
+                            </div>
+                            
+                            <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">
+                                ПРОГРЕС РЕГЕНЕРАЦІЇ
+                            </h2>
+                            
+                            <div class="recovery-percent-wrapper">
+                                <div class="recovery-percent-label">
+                                    <span>Готовність сітки та тканин</span>
+                                    <span id="recoveryPercentText" class="glow-text-teal" style="font-weight: 700; font-family: 'Orbitron';">0%</span>
+                                </div>
+                                <div class="recovery-bar-bg">
+                                    <div class="recovery-bar-fill" id="recoveryBarFill"></div>
+                                </div>
+                            </div>
+
+                            <div class="surgical-info-badge">
+                                <div class="surgical-info-item">
+                                    <span>Метод операції</span>
+                                    <span>Laparoscopic TAPP</span>
+                                </div>
+                                <div class="surgical-info-item">
+                                    <span>Матеріал сітки</span>
+                                    <span class="glow-text-teal">Optomesh® Ultralight</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- WEEKLY RECOVERY CHART CARD -->
+                <div class="card weekly-chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-main">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m18.7 8-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                            ТИЖНЕВИЙ ГРАФІК РЕГЕНЕРАЦІЇ КОЛАГЕНУ
+                        </div>
+                        <div class="chart-subtitle-percent" id="chartCollagenPercent">0%</div>
+                    </div>
+                    
+                    <div class="chart-svg-wrapper">
+                        <svg width="100%" height="100%" viewBox="0 0 520 120" preserveAspectRatio="none" style="overflow: visible;">
+                            <!-- Grid Lines -->
+                            <line x1="10" y1="10" x2="510" y2="10" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            <line x1="10" y1="55" x2="510" y2="55" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            <line x1="10" y1="100" x2="510" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            
+                            <!-- Dynamic Glow Spline (Generated via JS) -->
+                            <path id="chartGlowPath" fill="none" stroke="rgba(0, 229, 192, 0.15)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path id="chartLinePath" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            
+                            <!-- Milestone Circles (Amber dots) -->
+                            <!-- Week 2 (x=20, y=105) -->
+                            <circle class="chart-milestone-marker" cx="20" cy="105" r="4.5" fill="var(--warning)" stroke="#111118" stroke-width="1.5" id="milestone-c2" onclick="simulateToDay(14)"/>
+                            <!-- Week 6 (x=59, y=85) -->
+                            <circle class="chart-milestone-marker" cx="59" cy="85" r="4.5" fill="var(--warning)" stroke="#111118" stroke-width="1.5" id="milestone-c6" onclick="simulateToDay(42)"/>
+                            <!-- Week 13 (x=128, y=60) -->
+                            <circle class="chart-milestone-marker" cx="128" cy="60" r="4.5" fill="var(--warning)" stroke="#111118" stroke-width="1.5" id="milestone-c13" onclick="simulateToDay(90)"/>
+                            <!-- Week 26 (x=255, y=25) -->
+                            <circle class="chart-milestone-marker" cx="255" cy="25" r="4.5" fill="var(--warning)" stroke="#111118" stroke-width="1.5" id="milestone-c26" onclick="simulateToDay(180)"/>
+                            <!-- Week 52 (x=510, y=10) -->
+                            <circle class="chart-milestone-marker" cx="510" cy="10" r="4.5" fill="var(--warning)" stroke="#111118" stroke-width="1.5" id="milestone-c52" onclick="simulateToDay(365)"/>
+                            
+                            <!-- Current Position Pulse Dot -->
+                            <circle id="chartCurrentDotGlow" cx="0" cy="0" r="8" fill="rgba(0, 229, 192, 0.4)" style="display: none;"/>
+                            <circle id="chartCurrentDot" cx="0" cy="0" r="4.5" fill="#fff" stroke="var(--accent)" stroke-width="2" style="display: none;"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="chart-timeline-labels">
+                        <div class="chart-label-item" onclick="simulateToDay(14)" id="label-w2">
+                            <strong>Тиж. 2</strong><br><span style="font-size: 0.58rem; color: var(--text-secondary);">Колаген III</span>
+                        </div>
+                        <div class="chart-label-item" onclick="simulateToDay(42)" id="label-w6">
+                            <strong>Тиж. 6</strong><br><span style="font-size: 0.58rem; color: var(--text-secondary);">Капіляри +</span>
+                        </div>
+                        <div class="chart-label-item" onclick="simulateToDay(90)" id="label-m3">
+                            <strong>Міс. 3</strong><br><span style="font-size: 0.58rem; color: var(--text-secondary);">Броня сітки</span>
+                        </div>
+                        <div class="chart-label-item" onclick="simulateToDay(180)" id="label-m6">
+                            <strong>Міс. 6</strong><br><span style="font-size: 0.58rem; color: var(--text-secondary);">Навантаження</span>
+                        </div>
+                        <div class="chart-label-item" onclick="simulateToDay(365)" id="label-m12">
+                            <strong>Міс. 12</strong><br><span style="font-size: 0.58rem; color: var(--text-secondary);">100% Фінал</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WHAT'S HAPPENING TODAY (BIOLOGY CARD) -->
+                <div class="card status-card">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            ВІДБУВАЄТЬСЯ ВСЕРЕДИНІ TODAY
+                        </div>
+                        <span id="biologyProgressLabel" class="badge badge-info" style="color: var(--warning); border-color: var(--warning-glow);">Клітинна фаза</span>
+                    </div>
+                    <div>
+                        <div class="biology-stage-title" id="biologyStageTitle">Запуск імунної відповіді</div>
+                        <p class="biology-description" id="biologyDesc">
+                            Нейтрофіли очищають зону втручання. Пік запалення, набряк максимальний. Це природний процес запуску регенерації сполучної тканини навколо ультралегкої сітки.
+                        </p>
+                        
+                        <div class="biology-graphic-container">
+                            <div class="biology-mesh-icon" id="biologyMeshIcon">M-MESH</div>
+                            <div class="biology-status-text">
+                                Стан ультралегких пор сітки: <span class="biology-status-highlight" id="biologyPoreStatus">Заповнюються ексудатом та імунними клітинами</span>. Фізична міцність залежить виключно від хірургічних швів та вашої обережності.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALLOWED / FORBIDDEN ACTIVITIES CARD -->
+                <div class="card">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            ДОЗВОЛЕНА АКТИВНІСТЬ
+                        </div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase;" id="activityPhaseDays">День 1-14</span>
+                    </div>
+                    
+                    <div class="activities-grid">
+                        <!-- Allowed Column -->
+                        <div class="activity-column allowed">
+                            <div class="activity-column-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                                ДОЗВОЛЕНО
+                            </div>
+                            <ul class="activity-list" id="allowedList">
+                                <!-- Dynamic JS Inject -->
+                            </ul>
+                        </div>
+                        
+                        <!-- Forbidden Column -->
+                        <div class="activity-column forbidden">
+                            <div class="activity-column-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                ЗАБОРОНЕНО
+                            </div>
+                            <ul class="activity-list" id="forbiddenList">
+                                <!-- Dynamic JS Inject -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LEFT SIDE PROTECTION CARD -->
+                <div class="card core-protection-card">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            ЗАХИСТ ЛІВОГО ПАХОВОГО КІЛЬЦЯ (12мм)
+                        </div>
+                    </div>
+                    
+                    <div class="core-warning-box">
+                        <span>УВАГА:</span> М'язи кору — це природний бандаж для пахових каналів. Оскільки ліве пахове кільце має діаметр 12 мм (граничний розмір), правильне та поступове зміцнення глибоких м'язів живота є критично важливим для створення внутрішнього захисного корсета та попередження грижі з лівого боку.
+                    </div>
+                    
+                    <div class="core-grid" id="coreProtectionGrid">
+                        <!-- Dynamic items injected via JS based on currentDay -->
+                    </div>
+                </div>
+
+                <!-- TIMELINE PHASES CARD -->
+                <div class="card">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            ГЛОБАЛЬНИЙ ГРАФІК ВІДНОВЛЕННЯ
+                        </div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">6 Фаз інтеграції</span>
+                    </div>
+                    
+                    <div class="timeline-container" id="timelineContainer">
+                        <!-- Dynamic timeline injected by Javascript -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN (DAILY TASKS & STREAKS) -->
+            <div class="flex-col">
+                
+                <!-- DAILY SUPPLEMENTS CARD -->
+                <div class="card">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+                            ТРЕКЕР ДОБАВОК НА СЬОГОДНІ
+                        </div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Оновлюється щодня</span>
+                    </div>
+
+                    <div class="supplement-grid">
+                        
+                        <!-- MORNING -->
+                        <div>
+                            <div class="supplement-section-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                                РАНОК
+                            </div>
+                            
+                            <div class="supplement-grid" style="gap: 12px;">
+                                <!-- Vitamin C -->
+                                <div class="supplement-item-card" id="card-vitc">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="check-vitc" class="supplement-checkbox">
+                                        <span class="checkmark">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                    </label>
+                                    <div class="supplement-info">
+                                        <span class="supplement-name">Вітамін C</span>
+                                        <span class="supplement-details">500-1000мг з їжею (стимулює синтез колагену)</span>
+                                    </div>
+                                    <div class="streak-mini-counter">
+                                        <span class="streak-mini-num" id="streak-vitc">0</span>
+                                        <span class="streak-mini-label">днів</span>
+                                    </div>
+                                </div>
+
+                                <!-- Omega 3 -->
+                                <div class="supplement-item-card" id="card-omega">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="check-omega" class="supplement-checkbox">
+                                        <span class="checkmark">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                    </label>
+                                    <div class="supplement-info">
+                                        <span class="supplement-name">Омега-3</span>
+                                        <span class="supplement-details">1000-2000мг з їжею (протизапальний ефект, еластичність рубця)</span>
+                                    </div>
+                                    <div class="streak-mini-counter">
+                                        <span class="streak-mini-num" id="streak-omega">0</span>
+                                        <span class="streak-mini-label">днів</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EVENING -->
+                        <div>
+                            <div class="supplement-section-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                                ВЕЧІР
+                            </div>
+                            
+                            <div class="supplement-grid" style="gap: 12px;">
+                                <!-- Zinc -->
+                                <div class="supplement-item-card" id="card-zinc">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="check-zinc" class="supplement-checkbox">
+                                        <span class="checkmark">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                    </label>
+                                    <div class="supplement-info">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span class="supplement-name">Цинк</span>
+                                            <span class="supplement-badge zinc-badge-take" id="zincStatusBadge">Приймати</span>
+                                        </div>
+                                        <span class="supplement-details">50мг (через день, натщесерце перед сном)</span>
+                                    </div>
+                                    <div class="streak-mini-counter">
+                                        <span class="streak-mini-num" id="streak-zinc">0</span>
+                                        <span class="streak-mini-label">днів</span>
+                                    </div>
+                                </div>
+
+                                <!-- Magnesium -->
+                                <div class="supplement-item-card" id="card-magnesium">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="check-magnesium" class="supplement-checkbox">
+                                        <span class="checkmark">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                    </label>
+                                    <div class="supplement-info">
+                                        <span class="supplement-name">Магній</span>
+                                        <span class="supplement-details">За інструкцією (протидіє спазмам та заспокоює ЦНС)</span>
+                                    </div>
+                                    <div class="streak-mini-counter">
+                                        <span class="streak-mini-num" id="streak-magnesium">0</span>
+                                        <span class="streak-mini-label">днів</span>
+                                    </div>
+                                </div>
+
+                                <!-- Copper -->
+                                <div class="supplement-item-card" id="card-copper">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="check-copper" class="supplement-checkbox">
+                                        <span class="checkmark">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                    </label>
+                                    <div class="supplement-info">
+                                        <span class="supplement-name">Мідь (Copper)</span>
+                                        <span class="supplement-details">1-2мг з їжею (балансує цинк, активує зшивання колагену)</span>
+                                    </div>
+                                    <div class="streak-mini-counter">
+                                        <span class="streak-mini-num" id="streak-copper">0</span>
+                                        <span class="streak-mini-label">днів</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- UROLOGY REMINDER CARD -->
+                <div class="card urology-card" id="urologyCard">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            КОНТРОЛЬ ВАРИКОЦЕЛЕ
+                        </div>
+                    </div>
+                    
+                    <div class="urology-countdown-box">
+                        <span class="urology-label" id="urologyStatusLabel">Варикоцеле — плановий огляд уролога</span>
+                        <span class="urology-days" id="urologyCountdownVal">
+                            <!-- Countdown val or checkmark -->
+                        </span>
+                    </div>
+                    
+                    <div class="urology-metrics">
+                        <div class="urology-vein-indicator borderline">
+                            <span class="urology-vein-text">Ліва вена сім'яного канатика</span>
+                            <span class="urology-vein-val warning">4.0 мм (Гранична)</span>
+                        </div>
+                        <div class="urology-vein-indicator">
+                            <span class="urology-vein-text">Права вена сім'яного канатика</span>
+                            <span class="urology-vein-val">3.1 мм</span>
+                        </div>
+                        <p class="urology-note">
+                            *Примітка: Не пов'язано безпосередньо з пластикою пахової грижі. Це плановий нетерміновий огляд на 90-й день відновлення для УЗД-моніторингу вен.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- STREAKS & PERSONAL RECORDS -->
+                <div class="card">
+                    <div class="card-header-line">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            МОТИВАЦІЯ ТА АКТИВНІСТЬ
+                        </div>
+                    </div>
+
+                    <div class="motivation-grid">
+                        
+                        <!-- STREAK DISPLAY -->
+                        <div class="streak-card">
+                            <div class="streak-big-num" id="compFreeStreak">0</div>
+                            <div class="streak-title">Днів прогресу</div>
+                            <div class="streak-desc">Без ускладнень, надмірного напруження та гострого болю</div>
+                            <div class="streak-controls">
+                                <button class="streak-btn" id="btnResetStreak">Скинути (Біль)</button>
+                            </div>
+                        </div>
+
+                        <!-- PERSONAL RECORDS / MILESTONES -->
+                        <div class="flex-col" style="gap: 12px;">
+                            <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary);">
+                                СПОРТИВНІ МЕТИ / ВІДМІТКИ
+                            </div>
+                            
+                            <div class="records-list" id="recordsList">
+                                <!-- Dynamic milestones here -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- OPTOMESH SPECS CARD -->
+                <div class="card mesh-spec-card">
+                    <div class="mesh-spec-grid">
+                        <div class="mesh-microscopic-grid" id="poreGrid">
+                            <!-- Dynamic mesh pores representing tissue ingrowth -->
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                            <div class="mesh-pore"></div>
+                        </div>
+                        <div class="mesh-specs-text">
+                            <div class="mesh-spec-title">Біомеханіка Optomesh® Ultralight</div>
+                            <p class="mesh-spec-desc">
+                                Ультралегка поліпропіленова сітка з макропористою структурою. Великі пори (понад 1 мм) ідеально підходять для швидкого проростання фібробластів та капілярів, виключаючи відчуття стороннього тіла в паху при екстремальних навантаженнях.
+                            </p>
+                            <div class="mesh-spec-bullets">
+                                <span class="mesh-spec-bullet">Вага: ~28 г/м²</span>
+                                <span class="mesh-spec-bullet">Пористість: >90%</span>
+                                <span class="mesh-spec-bullet">Біосумісна</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ATHLETIC COACH QUOTE -->
+                <div class="coach-banner">
+                    <div class="coach-avatar">AC</div>
+                    <div class="coach-message">
+                        <span class="coach-message-title">МЕНТОР З ВІДНОВЛЕННЯ</span>
+                        <span class="coach-message-text" id="coachText">"Твоє тіло будує нову надміцну броню прямо зараз. Кожен спокійний день сьогодні — це 100 кг на штанзі завтра!"</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL FOR STREAK RESET -->
+    <div class="modal" id="resetModal">
+        <div class="modal-content">
+            <div class="modal-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Скинути серію прогресу?
+            </div>
+            <p class="modal-desc">
+                Якщо ви відчули гострий дискомфорт, потягнули пах або порушили режим спокою, скиньте лічильник. Це допоможе розпочати безпечний штурм спочатку під наглядом розумного трекера.
+            </p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">Так, скинути</button>
+                <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Скасувати</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SYNTHESIZED SOUND EFFECTS (WEB AUDIO API) ---
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // High-tech sci-fi UI sounds
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                
+                if (type === 'click') {
+                    // Futuristic light click/beep
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now); // A5
+                    osc.frequency.exponentialRampToValueAtTime(1760, now + 0.05);
+                    
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'check') {
+                    // Satisfying double ascending synthesizer beep
+                    const osc1 = audioCtx.createOscillator();
+                    const osc2 = audioCtx.createOscillator();
+                    const gain1 = audioCtx.createGain();
+                    const gain2 = audioCtx.createGain();
+                    
+                    osc1.connect(gain1);
+                    gain1.connect(audioCtx.destination);
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    
+                    osc1.type = 'triangle';
+                    osc1.frequency.setValueAtTime(523.25, now); // C5
+                    osc1.frequency.exponentialRampToValueAtTime(1046.5, now + 0.15);
+                    gain1.gain.setValueAtTime(0.06, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                    
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(783.99, now + 0.05); // G5
+                    osc2.frequency.exponentialRampToValueAtTime(1567.98, now + 0.2);
+                    gain2.gain.setValueAtTime(0.04, now + 0.05);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    
+                    osc1.start(now);
+                    osc1.stop(now + 0.2);
+                    osc2.start(now + 0.05);
+                    osc2.stop(now + 0.25);
+                } else if (type === 'uncheck') {
+                    // Soft descending beep
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.linearRampToValueAtTime(293.66, now + 0.15); // D4
+                    
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'warning') {
+                    // Cyber alert synth pulse
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(120, now + 0.3);
+                    
+                    // Low pass filter to keep it industrial
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(800, now);
+                    
+                    osc.disconnect(gain);
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'success') {
+                    // Epic game-like retro athletic fanfar
+                    const notes = [659.25, 783.99, 1046.50, 1318.51]; // E5, G5, C6, E6
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
+                        gain.gain.setValueAtTime(0.05, now + (idx * 0.06));
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.2);
+                        
+                        osc.start(now + (idx * 0.06));
+                        osc.stop(now + (idx * 0.06) + 0.2);
+                    });
+                }
+            } catch (e) {
+                console.warn('Audio synthesis not supported or blocked:', e);
+            }
+        }
+
+
+        // --- APPLICATION DATA & BUSINESS LOGIC ---
+        
+        // Target Surgery Date: May 9, 2026
+        const SURGERY_DATE_STR = '2026-05-09T00:00:00';
+        const surgeryDate = new Date(SURGERY_DATE_STR);
+        
+        // Calculated real current day
+        function getRealCurrentDay() {
+            const today = new Date();
+            const diffTime = today - surgeryDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // Day 1 is the surgery day itself
+            return Math.max(1, diffDays);
+        }
+
+        // Active State variables
+        let currentDay = getRealCurrentDay();
+        let isSimulating = false;
+
+        // Recovery Timeline Phase Configurations
+        const PHASES = [
+            {
+                id: 1,
+                minDay: 1,
+                maxDay: 14,
+                title: "Фаза 1: Первинний спокій",
+                duration: "Дні 1 - 14",
+                desc: "Максимальний захист пахового каналу. Організм пригнічує гостре запалення. Жодного навантаження.",
+                badge: "Фаза 1: Спокій",
+                coachMsg: "Твоє тіло будує нову надміцну броню прямо зараз. Кожен спокійний день сьогодні — це 100 кг на штанзі завтра!",
+                allowed: [
+                    "Легка прогулянка (10-30 хв у повільному темпі)",
+                    "Діафрагмальне дихання (без сильного надування живота)",
+                    "Сон на спині або боці (з подушкою між ніг за потреби)",
+                    "Легка розтяжка шиї, плечей та стоп сидячи"
+                ],
+                forbidden: [
+                    "Жодного залу, бігу, велотренажера, басейну",
+                    "Підйом предметів важчих за 3-5 кг",
+                    "Сміх, сильний кашель чи чхання БЕЗ притискання низу живота руками",
+                    "Будь-яке напруження живота та преса"
+                ]
+            },
+            {
+                id: 2,
+                minDay: 15,
+                maxDay: 21,
+                title: "Фаза 2: Обережна активація",
+                duration: "Дні 15 - 21",
+                desc: "Фібробласти формують першу сітку колагену крізь пори Optomesh. Запуск легкого кардіо без навантаження на прес.",
+                badge: "Фаза 2: Активація",
+                coachMsg: "Чудова робота! Судини починають проростати в сітку. Рухайся легко, без натужування. Крок за кроком!",
+                allowed: [
+                    "Обережні заняття на велотренажері (без навантаження/опору)",
+                    "Орбітрек (еліптичний тренажер) у плавному темпі",
+                    "Легке плавання (без різких поштовхів та махів ногами)",
+                    "Легкі тяги на верхню частину тіла сидячи (до 20% від звичної ваги, спина зафіксована)"
+                ],
+                forbidden: [
+                    "Присідання зі штангою, випади, станова тяга",
+                    "Будь-який біг на вулиці або доріжці (ударна хвиля)",
+                    "Натужування (дихання Вальсальви під суворою забороною)",
+                    "Підйом ваги понад 8-10 кг"
+                ]
+            },
+            {
+                id: 3,
+                minDay: 22,
+                maxDay: 60,
+                title: "Фаза 3: Адаптація та розширення",
+                duration: "Місяць 1 - 2",
+                desc: "Капіляри забезпечують максимальне живлення тканин. Колаген III типу активно синтезується. Рух стає вільнішим.",
+                badge: "Фаза 3: Адаптація",
+                coachMsg: "Тканини отримують відмінне живлення через капіляри. Час для гравійного байка та легкого жиму. Обережність — твій бро!",
+                allowed: [
+                    "Гравійний або шосейний велосипед по рівній дорозі (уникати ям та тряски)",
+                    "Легкий біг підтюпцем (jogging) по м'якій траві або гумі",
+                    "Жим лежачи (з помірною вагою, фокус на диханні, без вигинання мостом)",
+                    "Будь-які ізольовані вправи на руки, плечі та спину сидячи"
+                ],
+                forbidden: [
+                    "Важка атлетика, підйоми на межі можливостей",
+                    "Присідання нижче паралелі та глибокі випади",
+                    "Пряме тренування м'язів преса",
+                    "Інтенсивний біг на швидкість та стрибки"
+                ]
+            },
+            {
+                id: 4,
+                minDay: 61,
+                maxDay: 150,
+                title: "Фаза 4: Силова реактивація",
+                duration: "Місяці 3 - 5",
+                desc: "Армування тканин. Колаген III типу заміщується надійним колагеном I типу. Впровадження силових навантажень.",
+                badge: "Фаза 4: Сила",
+                coachMsg: "Колаген I типу робить зону паху монолітною. Працюй у високому діапазоні повторень, стеж за диханням!",
+                allowed: [
+                    "Легкі силові тренування у діапазоні 12-20 повторень",
+                    "Присідання з власною вагою або легким грифом (до 40-50% від 1RM)",
+                    "Інтенсивне кардіо: швидкий біг, гребний тренажер, активне плавання",
+                    "Робота над мобільністю кульшових суглобів та розтяжка"
+                ],
+                forbidden: [
+                    "Максимальні підходи (1-5 повторень) зі штангою",
+                    "Будь-яка затримка дихання під час зусилля (метод Вальсальви)",
+                    "Глибокі випади з великою вагою"
+                ]
+            },
+            {
+                id: 5,
+                minDay: 151,
+                maxDay: 364,
+                title: "Фаза 5: Повернення до лімітів",
+                duration: "Місяці 6 - 11",
+                desc: "Стабілізація та повне злиття сітки з тілом. Зона відновлення практично не поступається здоровим тканинам.",
+                badge: "Фаза 5: Повернення сили",
+                coachMsg: "Сітка практично стала єдиним цілим з твоїми фасціями. Присідання 150 кг? Твоє тіло готове до цього, якщо готовий розум. GO!",
+                allowed: [
+                    "Повноцінні силові тренування з будь-якими робочими вагами",
+                    "Використання натужування (маневр Вальсальви) при важких підходах",
+                    "Присідання понад 100-150 кг за індивідуальним планом підготовки",
+                    "Кросфіт, єдиноборства, спрінти та вибухові стрибки"
+                ],
+                forbidden: [
+                    "Робота без якісної суглобової розминки",
+                    "Ігнорування дискомфорту (гострий біль — це стоп-сигнал)"
+                ]
+            },
+            {
+                id: 6,
+                minDay: 365,
+                maxDay: 99999,
+                title: "Фаза 6: Абсолютна інтеграція",
+                duration: "12+ Місяців",
+                desc: "Процес регенерації завершено на 100%. Зрілий колаген типу I повністю заповнив пори сітки. Анатомічний моноліт.",
+                badge: "100% Завершено",
+                coachMsg: "Вітання, чемпіоне! Твоє тіло повністю реконструйовано. Optomesh Ultralight інтегрована навічно. Обмежень не існує. Вперед до нових вершин!",
+                allowed: [
+                    "Будь-які спортивні та екстремальні навантаження без жодних обмежень",
+                    "Штурм світових чи особистих спортивних рекордів",
+                    "Повна ментальна впевненість у міцності свого тіла"
+                ],
+                forbidden: [
+                    "Сумніватися у міцності пахового каналу! Ремонт виконано бездоганно."
+                ]
+            }
+        ];
+
+        // Cellular Healing Dynamic Stages (What's happening inside today)
+        function getBiologyStage(day) {
+            if (day >= 1 && day <= 3) {
+                return {
+                    title: "Пік імунного очищення та запалення",
+                    desc: "У зоні операції панує максимальна концентрація нейтрофілів та макрофагів. Вони очищають пори сітки Optomesh від мікрочастинок тканинного ексудату та готують плацдарм для росту нових волокон. Набряк та помірна болючість є фізіологічною нормою.",
+                    poreStatus: "Заповнюються імунними клітинами та ексудатом",
+                    ingrowthPores: 1 // Out of 16 for representation
+                };
+            } else if (day >= 4 && day <= 14) {
+                return {
+                    title: "Міграція фібробластів та первинний колаген",
+                    desc: "Активно мігрують фібробласти — клітини-будівельники. Вони починають розкладати першу павутину еластичного та м'якого колагену III типу крізь пори сітки. Сітка починає делікатно фіксуватися вашими власними тканинами на клітинному рівні.",
+                    poreStatus: "Тонкі нитки колагену III типу проникають у пори",
+                    ingrowthPores: 3
+                };
+            } else if (day >= 15 && day <= 42) {
+                return {
+                    title: "Неоваскуляризація (капіляризація сітки)",
+                    desc: "Відбувається дивовижний процес: мікроскопічні нові капіляри брунькуються та проростають прямо крізь пори ультралегкої сітки. Це гарантує стабільне живлення та приплив кисню. Утворюється міцна грануляційна тканина, що робить сітку стійкою до легких зсувів.",
+                    poreStatus: "Проростання капілярів та судинної сітки",
+                    ingrowthPores: 6
+                };
+            } else if (day >= 43 && day <= 90) {
+                return {
+                    title: "Армування: заміна колагену III на тип I",
+                    desc: "Починається найдовший силовий етап: пухкий колаген III типу (який швидко будувався як тимчасовий каркас) руйнується, а на його місці фібробласти вибудовують потужний, паралельно орієнтований колаген I типу — такий самий, як у сухожиллях. Міцність каналу зростає експоненціально.",
+                    poreStatus: "Активна кристалізація міцного колагену I типу",
+                    ingrowthPores: 10
+                };
+            } else if (day >= 91 && day <= 180) {
+                return {
+                    title: "Стабілізація біокомпозитного моноліту",
+                    desc: "Сітка Optomesh Ultralight та ваші власні фасції перетворюються на високотехнологічний біокомпозит. Тканина ущільнюється, стає пружною та стійкою до деформації. Ви більше не відчуваєте сітку як чужорідне тіло при нахилах та поворотах.",
+                    poreStatus: "Формування міцного сполучнотканинного футляру",
+                    ingrowthPores: 13
+                };
+            } else if (day >= 181 && day <= 365) {
+                return {
+                    title: "Остаточне дозрівання колагенового каркасу",
+                    desc: "Колагенові волокна проходять процес кінцевого поперечного зшивання (cross-linking), що створює колосальну міцність на розрив. Рубець стає повністю зрілим, білим та еластичним. Судини реструктуризуються, запальні процеси зведені до абсолютного нуля.",
+                    poreStatus: "Практично 100% заповнення зрілою власною тканиною",
+                    ingrowthPores: 15
+                };
+            } else {
+                return {
+                    title: "Абсолютна анатомічна інтеграція сітки",
+                    desc: "Регенерація завершена на всі 100%. Ультралегка сітка Optomesh повністю інтегрована в глибокі структури черевного преса. Її неможливо відокремити або відрізнити від ваших природних тканин. Зона паху захищена краще, ніж до появи грижі.",
+                    poreStatus: "Повний моноліт, сітка повністю асимільована тілом",
+                    ingrowthPores: 16
+                };
+            }
+        }
+
+        // --- LOCAL STORAGE STATE MANAGEMENT ---
+        
+        // Initial setup for State from localStorage or defaults
+        function getInitialState() {
+            const defaults = {
+                compFreeStreak: 0,
+                streakVitC: 0,
+                streakZinc: 0,
+                streakMagnesium: 0,
+                streakOmega: 0,
+                streakCopper: 0,
+                lastCheckedDate: '', // to handle daily reset
+                checkedVitC: false,
+                checkedZinc: false,
+                checkedMagnesium: false,
+                checkedOmega: false,
+                checkedCopper: false,
+                milestones: [
+                    { id: 'first_walk', name: 'Перша прогулянка (>20 хв)', unlocked: false, date: '', note: '' },
+                    { id: 'first_cardio', name: 'Перша кардіо-активація (вело/орбітрек)', unlocked: false, date: '', note: '' },
+                    { id: 'first_gym', name: 'Перше легке тренування (верх тіла)', unlocked: false, date: '', note: '' },
+                    { id: 'first_squat', name: 'Перше присідання (зі штангою)', unlocked: false, date: '', note: '' },
+                    { id: 'full_integration', name: 'Повна інтеграція (365 днів)', unlocked: false, date: '', note: '' }
+                ]
+            };
+            
+            const saved = localStorage.getItem('maraphone_recovery_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Merge with defaults to prevent crashes if schema changes
+                    return { ...defaults, ...parsed };
+                } catch (e) {
+                    console.error('Error parsing state from localStorage:', e);
+                    return defaults;
+                }
+            }
+            return defaults;
+        }
+
+        let appState = getInitialState();
+
+        // Force-initialize the state for Day 11 to match user's custom history
+        const initializedForDay11 = localStorage.getItem('maraphone_forced_day11_init_v3');
+        if (!initializedForDay11) {
+            appState.streakVitC = 11;
+            appState.checkedVitC = true;
+            
+            appState.streakZinc = 6;
+            appState.checkedZinc = true;
+            
+            appState.streakMagnesium = 4;
+            appState.checkedMagnesium = true;
+            
+            appState.streakOmega = 0;
+            appState.checkedOmega = false;
+            
+            appState.streakCopper = 0;
+            appState.checkedCopper = false;
+            
+            appState.compFreeStreak = 11; // 11 days without complications
+            
+            localStorage.setItem('maraphone_recovery_state', JSON.stringify(appState));
+            localStorage.setItem('maraphone_forced_day11_init_v3', 'true');
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem('maraphone_recovery_state', JSON.stringify(appState));
+        }
+
+        // Reset daily checks if the day has changed (comparing stored date with today's date)
+        function checkDailyReset() {
+            const todayStr = new Date().toDateString();
+            if (appState.lastCheckedDate !== todayStr) {
+                // If it's a new day, reset today's checkmarks but keep streaks! (No streak reset penalty per user request)
+                appState.checkedVitC = false;
+                appState.checkedZinc = false;
+                appState.checkedMagnesium = false;
+                appState.checkedOmega = false;
+                appState.checkedCopper = false;
+                
+                appState.lastCheckedDate = todayStr;
+                saveStateToStorage();
+            }
+        }
+
+        // --- RENDER FUNCTIONS (DYNAMICS) ---
+
+        function updateUI() {
+            const phase = PHASES.find(p => currentDay >= p.minDay && currentDay <= p.maxDay) || PHASES[PHASES.length - 1];
+            
+            // 1. HERO DASHBOARD UPDATE
+            document.getElementById('heroDayNum').textContent = currentDay;
+            document.getElementById('daySlider').value = currentDay;
+            document.getElementById('daySliderVal').textContent = `День ${currentDay}`;
+            
+            // Progress Ring Circle Math
+            const circle = document.getElementById('progressCircle');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            
+            const progressRatio = Math.min(1, currentDay / 365);
+            const offset = circumference - (progressRatio * circumference);
+            circle.style.strokeDashoffset = offset;
+            
+            // Active badge & percent
+            const phaseBadge = document.getElementById('phaseBadge');
+            phaseBadge.textContent = phase.badge;
+            
+            // Custom coloring for phase badge
+            if (phase.id === 1) {
+                phaseBadge.className = 'badge badge-active glow-text-red';
+                phaseBadge.style.borderColor = 'var(--danger)';
+                phaseBadge.style.background = 'rgba(255, 77, 109, 0.15)';
+            } else if (phase.id >= 2 && phase.id <= 4) {
+                phaseBadge.className = 'badge badge-active glow-text-amber';
+                phaseBadge.style.borderColor = 'var(--warning)';
+                phaseBadge.style.background = 'rgba(245, 166, 35, 0.15)';
+            } else {
+                phaseBadge.className = 'badge badge-active glow-text-teal';
+                phaseBadge.style.borderColor = 'var(--accent)';
+                phaseBadge.style.background = 'rgba(0, 229, 192, 0.15)';
+            }
+
+            const recPercent = Math.min(100, Math.round((currentDay / 365) * 100));
+            document.getElementById('recoveryPercentText').textContent = `${recPercent}%`;
+            document.getElementById('recoveryBarFill').style.width = `${recPercent}%`;
+
+            // 2. BIOLOGY STATUS CARD UPDATE
+            const bioData = getBiologyStage(currentDay);
+            document.getElementById('biologyStageTitle').textContent = bioData.title;
+            document.getElementById('biologyDesc').textContent = bioData.desc;
+            document.getElementById('biologyPoreStatus').textContent = bioData.poreStatus;
+            
+            // Update Mesh Pore Graphic
+            const pores = document.querySelectorAll('.mesh-pore');
+            pores.forEach((pore, idx) => {
+                if (idx < bioData.ingrowthPores) {
+                    pore.classList.add('pore-ingrowth');
+                } else {
+                    pore.classList.remove('pore-ingrowth');
+                }
+            });
+
+            // 3. ALLOWED / FORBIDDEN ACTIVITIES UPDATE
+            document.getElementById('activityPhaseDays').textContent = phase.duration;
+            
+            const allowedList = document.getElementById('allowedList');
+            allowedList.innerHTML = '';
+            phase.allowed.forEach(act => {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+                li.innerHTML = `
+                    <svg class="activity-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    <span>${act}</span>
+                `;
+                allowedList.appendChild(li);
+            });
+
+            const forbiddenList = document.getElementById('forbiddenList');
+            forbiddenList.innerHTML = '';
+            phase.forbidden.forEach(act => {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+                li.innerHTML = `
+                    <svg class="activity-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <span>${act}</span>
+                `;
+                forbiddenList.appendChild(li);
+            });
+
+            // 4. COACH BANNER
+            document.getElementById('coachText').textContent = `"${phase.coachMsg}"`;
+
+            // 5. TIMELINE RENDER
+            renderTimeline(phase.id);
+
+            // 6. SUPPLEMENTS GRAPHIC UPDATE (ZINC LOGIC)
+            // Zinc every other day -> Odd days = Take, Even days = Skip
+            const isZincDay = (currentDay % 2 !== 0);
+            const zincBadge = document.getElementById('zincStatusBadge');
+            if (isZincDay) {
+                zincBadge.textContent = "Приймати";
+                zincBadge.className = "supplement-badge zinc-badge-take";
+            } else {
+                zincBadge.textContent = "Пропустити за графіком";
+                zincBadge.className = "supplement-badge zinc-badge-skip";
+            }
+
+            // Sync checkboxes and streaks
+            document.getElementById('check-vitc').checked = appState.checkedVitC;
+            document.getElementById('check-zinc').checked = appState.checkedZinc;
+            document.getElementById('check-magnesium').checked = appState.checkedMagnesium;
+            document.getElementById('check-omega').checked = appState.checkedOmega;
+            document.getElementById('check-copper').checked = appState.checkedCopper;
+            
+            // Set styles based on check
+            updateSupplementCardStyle('vitc', appState.checkedVitC);
+            updateSupplementCardStyle('zinc', appState.checkedZinc);
+            updateSupplementCardStyle('magnesium', appState.checkedMagnesium);
+            updateSupplementCardStyle('omega', appState.checkedOmega);
+            updateSupplementCardStyle('copper', appState.checkedCopper);
+
+            document.getElementById('streak-vitc').textContent = appState.streakVitC;
+            document.getElementById('streak-zinc').textContent = appState.streakZinc;
+            document.getElementById('streak-magnesium').textContent = appState.streakMagnesium;
+            document.getElementById('streak-omega').textContent = appState.streakOmega;
+            document.getElementById('streak-copper').textContent = appState.streakCopper;
+
+            // 7. COMPLICATION STREAK DISPLAY
+            document.getElementById('compFreeStreak').textContent = appState.compFreeStreak;
+
+            // 8. PERSONAL RECORDS RENDER
+            renderMilestones();
+
+            // 9. WEEKLY RECOVERY CHART UPDATE
+            updateWeeklyChart();
+
+            // 10. LEFT SIDE PROTECTION UPDATE
+            renderCoreProtection();
+
+            // 11. UROLOGY REMINDER UPDATE
+            updateUrologyReminder();
+        }
+
+        // Render Global Timeline
+        function renderTimeline(activePhaseId) {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            PHASES.forEach(p => {
+                let statusClass = 'locked';
+                if (p.id < activePhaseId) statusClass = 'completed';
+                else if (p.id === activePhaseId) statusClass = 'active';
+
+                const stepDiv = document.createElement('div');
+                stepDiv.className = `timeline-step ${statusClass}`;
+                
+                stepDiv.innerHTML = `
+                    <div class="timeline-node"></div>
+                    <div class="timeline-content-card">
+                        <div class="timeline-step-header">
+                            <h4 class="timeline-step-title">${p.title}</h4>
+                            <span class="timeline-step-duration">${p.duration}</span>
+                        </div>
+                        <p class="timeline-step-desc">${p.desc}</p>
+                    </div>
+                `;
+                container.appendChild(stepDiv);
+            });
+        }
+
+        function updateSupplementCardStyle(id, isChecked) {
+            const card = document.getElementById(`card-${id}`);
+            if (isChecked) {
+                card.classList.add('checked');
+            } else {
+                card.classList.remove('checked');
+            }
+        }
+
+        // Render Personal Records / Milestones
+        function renderMilestones() {
+            const container = document.getElementById('recordsList');
+            container.innerHTML = '';
+
+            appState.milestones.forEach((m, idx) => {
+                const card = document.createElement('div');
+                card.className = `record-item-card ${m.unlocked ? 'unlocked' : ''}`;
+                
+                const showDetailsClass = m.unlocked ? '' : 'active'; // show panel if locked to allow editing, or if toggled
+                
+                card.innerHTML = `
+                    <div class="record-header" onclick="toggleRecordPanel('${m.id}')">
+                        <div class="record-title-group">
+                            <span class="record-icon-status">
+                                ${m.unlocked ? 
+                                    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>` : 
+                                    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+                                }
+                            </span>
+                            <span class="record-label">${m.name}</span>
+                        </div>
+                        <span class="record-date-badge">${m.unlocked ? m.date : 'У процесі'}</span>
+                    </div>
+                    
+                    <div class="record-details-panel" id="panel-${m.id}">
+                        <div class="record-input-row">
+                            <input type="text" class="record-input" id="input-date-${m.id}" placeholder="Дата (напр. 15.05.2026)" value="${m.date}">
+                            <button class="record-save-btn" onclick="saveRecord('${m.id}')">Зберегти</button>
+                        </div>
+                        <textarea class="record-textarea" id="input-note-${m.id}" placeholder="Твої враження / самопочуття / робоча вага">${m.note}</textarea>
+                        ${m.unlocked && m.note ? `<div class="record-note-display">${m.note}</div>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Toggle panel display for record editing
+        window.toggleRecordPanel = function(id) {
+            playSound('click');
+            const panel = document.getElementById(`panel-${id}`);
+            if (panel.style.display === 'flex' || panel.classList.contains('active')) {
+                panel.style.display = 'none';
+                panel.classList.remove('active');
+            } else {
+                panel.style.display = 'flex';
+                panel.classList.add('active');
+            }
+        };
+
+        // Save Record achievement
+        window.saveRecord = function(id) {
+            const dateVal = document.getElementById(`input-date-${id}`).value.trim();
+            const noteVal = document.getElementById(`input-note-${id}`).value.trim();
+            
+            const milestone = appState.milestones.find(m => m.id === id);
+            
+            if (dateVal) {
+                milestone.unlocked = true;
+                milestone.date = dateVal;
+                milestone.note = noteVal;
+                playSound('success');
+            } else {
+                // If date is cleared, lock it
+                milestone.unlocked = false;
+                milestone.date = '';
+                milestone.note = noteVal;
+                playSound('uncheck');
+            }
+            
+            saveStateToStorage();
+            renderMilestones();
+            updateUI();
+        };
+
+
+        // --- EVENT LISTENERS & INITIALIZATION ---
+
+        // Day Simulator toggles
+        document.getElementById('devToggle').addEventListener('click', () => {
+            playSound('click');
+            const panel = document.getElementById('simPanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+                isSimulating = false;
+                currentDay = getRealCurrentDay();
+            } else {
+                panel.style.display = 'block';
+                isSimulating = true;
+            }
+            updateUI();
+        });
+
+        // Day slider event
+        const daySlider = document.getElementById('daySlider');
+        daySlider.addEventListener('input', (e) => {
+            currentDay = parseInt(e.target.value);
+            playSound('click');
+            updateUI();
+        });
+
+        // Day slider preset buttons
+        document.querySelectorAll('.sim-presets button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const day = e.target.getAttribute('data-day');
+                if (day) {
+                    currentDay = parseInt(day);
+                    playSound('click');
+                    updateUI();
+                }
+            });
+        });
+
+        // Real Date mode button in simulator
+        document.getElementById('realDateBtn').addEventListener('click', () => {
+            currentDay = getRealCurrentDay();
+            playSound('success');
+            updateUI();
+        });
+
+        // Audio toggle
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                initAudio();
+                playSound('click');
+                icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+            } else {
+                icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+            }
+        });
+
+        // Supplement Checkboxes logic with streaks
+        function setupSupplementCheckbox(checkboxId, stateKey, streakKey) {
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                appState[stateKey] = isChecked;
+                
+                if (isChecked) {
+                    appState[streakKey] += 1;
+                    playSound('check');
+                } else {
+                    appState[streakKey] = Math.max(0, appState[streakKey] - 1);
+                    playSound('uncheck');
+                }
+                
+                saveStateToStorage();
+                updateUI();
+            });
+        }
+
+        setupSupplementCheckbox('check-vitc', 'checkedVitC', 'streakVitC');
+        setupSupplementCheckbox('check-zinc', 'checkedZinc', 'streakZinc');
+        setupSupplementCheckbox('check-magnesium', 'checkedMagnesium', 'streakMagnesium');
+        setupSupplementCheckbox('check-omega', 'checkedOmega', 'streakOmega');
+        setupSupplementCheckbox('check-copper', 'checkedCopper', 'streakCopper');
+
+        // Complication free streak control
+        // Since it increments automatically on a new day, let's let the user increments or resets
+        // Increment happens when checking supplements, or when days go by. Let's make an automated day counter,
+        // and a prominent reset modal.
+        const resetModal = document.getElementById('resetModal');
+        
+        document.getElementById('btnResetStreak').addEventListener('click', () => {
+            playSound('warning');
+            resetModal.classList.add('active');
+        });
+
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+            appState.compFreeStreak = 0;
+            saveStateToStorage();
+            resetModal.classList.remove('active');
+            playSound('uncheck');
+            updateUI();
+        });
+
+        document.getElementById('modalCancelBtn').addEventListener('click', () => {
+            resetModal.classList.remove('active');
+            playSound('click');
+        });
+
+        // --- NEW FEATURES HELPER JAVASCRIPT FUNCTIONS ---
+
+        // Core Protection steps database
+        const CORE_STEPS = [
+            { id: 1, minDay: 1, name: "Діафрагмальне дихання", desc: "Діафрагмальне дихання лежачи. Знижує внутрішньочеревний тиск, активує поперечний м'яз живота без навантаження на пах.", unlockLabel: "Місяць 1 (Дні 1-30)" },
+            { id: 2, minDay: 31, name: "Вакуум лежачи", desc: "Помірне втягування живота лежачи. Зміцнює глибокий поперечний м'яз живота, що безпосередньо стабілізує пахове кільце.", unlockLabel: "Місяць 1.5 (Дні 31-45)" },
+            { id: 3, minDay: 46, name: "Вакуум стоячи", desc: "Вакуум у положенні стоячи або рачки. Протидія силі тяжіння, глибоке армування передньої черевної стінки.", unlockLabel: "Місяць 2 (Дні 46-90)" },
+            { id: 4, minDay: 91, name: "Легкі планки & косі м'язи", desc: "Планки на ліктях (починаючи з 20 сек), легкі бокові нахили без натужування. Створення міцного бокового каркаса кору.", unlockLabel: "Місяць 3 (Дні 91-180)" },
+            { id: 5, minDay: 181, name: "Повний кор & силова атлетика", desc: "Пове повернення до важких тренувань кору. При роботі з великими вагами (понад 80% від ПМ) рекомендується важкоатлетичний пояс.", unlockLabel: "Місяць 6+ (Дні 181+)" }
+        ];
+
+        // 1. Math-based Collagen Integration Calculator
+        function getCollagenPercent(w) {
+            if (w <= 2) return 5 * (w / 2);
+            if (w <= 6) return 5 + 20 * ((w - 2) / 4);
+            if (w <= 13) return 25 + 25 * ((w - 6) / 7);
+            if (w <= 26) return 50 + 35 * ((w - 13) / 13);
+            if (w <= 52) return 85 + 15 * ((w - 26) / 26);
+            return 100;
+        }
+
+        // Coordinates helpers
+        const getX = (w) => 10 + (w - 1) * (500 / 51);
+        const getY = (p) => 110 - (p * 100 / 100);
+
+        // 2. Weekly Recovery Chart update function
+        function updateWeeklyChart() {
+            // Draw spline paths
+            let d = `M ${getX(1)} ${getY(getCollagenPercent(1))}`;
+            for (let w = 2; w <= 52; w++) {
+                d += ` L ${getX(w)} ${getY(getCollagenPercent(w))}`;
+            }
+            
+            document.getElementById('chartGlowPath').setAttribute('d', d);
+            document.getElementById('chartLinePath').setAttribute('d', d);
+            
+            // Calculate current week
+            const currentWeek = Math.min(52, Math.max(1, Math.ceil(currentDay / 7)));
+            const currentPercent = getCollagenPercent(currentWeek);
+            
+            // Update percentage header
+            document.getElementById('chartCollagenPercent').textContent = `${Math.round(currentPercent)}%`;
+            
+            // Position current week indicator
+            const curX = getX(currentWeek);
+            const curY = getY(currentPercent);
+            
+            const dotGlow = document.getElementById('chartCurrentDotGlow');
+            const dot = document.getElementById('chartCurrentDot');
+            
+            dotGlow.setAttribute('cx', curX);
+            dotGlow.setAttribute('cy', curY);
+            dot.setAttribute('cx', curX);
+            dot.setAttribute('cy', curY);
+            
+            dotGlow.style.display = 'block';
+            dot.style.display = 'block';
+            
+            // Highlight active milestone labels and circles
+            document.querySelectorAll('.chart-label-item').forEach(lbl => lbl.classList.remove('active'));
+            document.querySelectorAll('.chart-milestone-marker').forEach(c => c.setAttribute('fill', 'var(--warning)'));
+            
+            if (currentWeek >= 2) {
+                document.getElementById('label-w2').classList.add('active');
+                document.getElementById('milestone-c2').setAttribute('fill', 'var(--accent)');
+            }
+            if (currentWeek >= 6) {
+                document.getElementById('label-w6').classList.add('active');
+                document.getElementById('milestone-c6').setAttribute('fill', 'var(--accent)');
+            }
+            if (currentWeek >= 13) {
+                document.getElementById('label-m3').classList.add('active');
+                document.getElementById('milestone-c13').setAttribute('fill', 'var(--accent)');
+            }
+            if (currentWeek >= 26) {
+                document.getElementById('label-m6').classList.add('active');
+                document.getElementById('milestone-c26').setAttribute('fill', 'var(--accent)');
+            }
+            if (currentWeek >= 52) {
+                document.getElementById('label-m12').classList.add('active');
+                document.getElementById('milestone-c52').setAttribute('fill', 'var(--accent)');
+            }
+        }
+
+        // 3. Left Side Protection grid renderer
+        function renderCoreProtection() {
+            const grid = document.getElementById('coreProtectionGrid');
+            grid.innerHTML = '';
+            
+            CORE_STEPS.forEach(step => {
+                const isUnlocked = currentDay >= step.minDay;
+                const statusLabel = isUnlocked ? "Активно" : "Заблоковано";
+                const statusClass = isUnlocked ? "status-unlocked" : "status-locked";
+                const itemClass = isUnlocked ? "core-item unlocked" : "core-item locked";
+                
+                const icon = isUnlocked ? 
+                    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>` : 
+                    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+                
+                const card = document.createElement('div');
+                card.className = itemClass;
+                card.innerHTML = `
+                    <div class="core-icon-wrap">${icon}</div>
+                    <div class="core-info-wrap">
+                        <div class="core-name">${step.name}</div>
+                        <div class="core-desc">${step.desc}</div>
+                        <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 4px;">Етап: ${step.unlockLabel}</div>
+                    </div>
+                    <div class="core-status-badge ${statusClass}">${statusLabel}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 4. Urology Countdown reminder
+        function updateUrologyReminder() {
+            const urologyCard = document.getElementById('urologyCard');
+            const urologyStatusLabel = document.getElementById('urologyStatusLabel');
+            const urologyCountdownVal = document.getElementById('urologyCountdownVal');
+            
+            const urologyTargetDay = 90;
+            if (currentDay >= urologyTargetDay) {
+                urologyCard.classList.add('completed');
+                urologyStatusLabel.innerHTML = `<span class="glow-text-teal" style="font-weight: 700;">Огляд уролога пройдено</span>`;
+                urologyCountdownVal.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" style="filter: drop-shadow(0 0 5px var(--accent-glow));"><polyline points="20 6 9 17 4 12"/></svg>`;
+            } else {
+                urologyCard.classList.remove('completed');
+                const daysRemaining = urologyTargetDay - currentDay;
+                urologyStatusLabel.textContent = "Варикоцеле — плановий огляд уролога";
+                urologyCountdownVal.innerHTML = `${daysRemaining} дн.`;
+            }
+        }
+
+        // 5. Interactive Chart click trigger simulation
+        function simulateToDay(day) {
+            currentDay = day;
+            document.getElementById('daySlider').value = day;
+            playSound('click');
+            updateUI();
+        }
+
+        // Initialize state & UI
+        checkDailyReset();
+        
+        // Auto-increment complication streak if new day has occurred
+        // (Just a simple simulation for user experience: if today is a different day, increment)
+        const lastLoginDate = localStorage.getItem('maraphone_last_login');
+        const todayStr = new Date().toDateString();
+        if (lastLoginDate && lastLoginDate !== todayStr) {
+            // New day login! Increment complication-free streak
+            appState.compFreeStreak += 1;
+            saveStateToStorage();
+        }
+        localStorage.setItem('maraphone_last_login', todayStr);
+
+        // Render initially
+        updateUI();
+
+        // Play brief entry chime on first click anywhere (to unlock Web Audio API autoplay block)
+        window.addEventListener('click', () => {
+            initAudio();
+        }, { once: true });
+
+    </script>
+</body>
+</html>
